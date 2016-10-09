@@ -82,4 +82,17 @@
         (c/validate {:col ["1" "blah" "blob"]} validator)
         (u/error-result (u/single-error [:col :is-integer] "blah")
                         (u/single-error [:col :is-integer] "blob")))))
-  )
+  (testing "validating a collection of maps"
+    (let [validator (c/from-map {:col [{:a v/is-integer
+                                        :b (v/greater-than 3)}]})]
+      (is=
+        (c/validate {:col []} validator)
+        (u/success-result {:col []}))
+      (is=
+        (c/validate {:col [{:a "1" :b 4}]} validator)
+        (u/success-result {:col [{:a 1 :b 4}]}))
+      (is=
+        (c/validate {:col [{:a 1 :b 2} {:a 2 :b 5} {:a "bob" :b 7}]} validator)
+        (u/error-result
+          (u/single-error [:col :b :greater-than] 2 {:limit 3})
+          (u/single-error [:col :a :is-integer] "bob"))))))

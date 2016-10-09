@@ -1,7 +1,7 @@
 ;; ROAD MAP
 
 ### TODO
- - improve error and success result return types - errors should be presented as map of key to error details
+ X improve error and success result return types - errors should be presented as map of key to error details
    - {:valid true :result {}}  {:valid false :result {:k []}}
  X implement translation
  X consolidate ```at``` and ```at*```
@@ -15,6 +15,7 @@
  X roll detox.model back into detox.core
  - write test that demos that parsing can be done with multi-nested validator
  - if validator multiple values, perhaps someway of indexing them in error path?
+ - get some codox involved
 
 ### QUESTIONS
  - For errors, should unparsed or transformed values be preserved in error value?
@@ -26,6 +27,9 @@
 ### ISSUES
  - if the structure of the thing to be validated is wrong, then the nested validators can blow up
  - macros currently remove the possibility for doc strings
+
+ - FIXME difficulty with group validations, let's say the first validator has some updates that succeed,
+ - but others that fail (so error is returned), should the subsequent validators be able to see those updates?
 
 
 ### IDEAS

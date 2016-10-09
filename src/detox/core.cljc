@@ -32,36 +32,22 @@
   ;(error-value (assoc-in {} type [{:value value :constraints constraints}]))
   (error-value [{:type type :value value :constraints constraints}]))
 
-(defn apply-to-success [result f]
-  (if (success? result)
-    (update result :value f)
-    result))
-
-(defn apply-to-error [result f]
-  (if-not (success? result)
-    (update result :value f)
-    result))
-
-(defn wrap-map [m id]
-  {id m})
-
 (defn prefix-error [id error]
   (update error :type #(cons id %)))
 
 (defn prefix-errors [errors-result id]
   (update errors-result :value #(map (partial prefix-error id) %)))
 
-(defn deep-merge-with [f a b]
-  (if (and (map? a) (map? b))
-    (merge-with (partial deep-merge-with f) a b)
-    (f a b)))
-
 ;; Rewrite as a monadic do-hickey
 (defn mappend [a b]
-  (update a :value concat (:value b)))
+  (case [(success? a) (success? b)]
+    [true true] b
+    [true false] b
+    [false true] a
+    [false false] (update a :value concat (:value b))))
 
 (defn combine-errors [error-results]
-  (reduce mappend empty-error-result (remove success? error-results)))
+  (reduce mappend empty-error-result error-results))
 
 (defprotocol Selection
   (select-vals [this x selector])
@@ -85,7 +71,7 @@
       (let [selector (first selectors)
             v-with-validation (update-vals selection x selector #(-validate validator %))
             r (select-vals selection v-with-validation selector)]
-        (if (every? success? r)                               ;; need some sort of fmap affair here
+        (if (every? success? r)                             ;; need some sort of fmap affair here
           (success-value (update-vals selection v-with-validation selector result-value))
           (prefix-errors (combine-errors r) id)))
       (let [vals (map (comp first #(select-vals selection x %)) selectors)
@@ -114,20 +100,20 @@
   (possible-errors [this]
     (combine-errors (map possible-errors validators))))
 
+
+(defn- accumulate-validations [{:keys [last-success result]} validator]
+  (let [r (-validate validator (result-value last-success))
+        combined (mappend result r)]
+    (if (success? r)
+      {:last-success r :result combined}
+      {:last-success last-success :result combined})))
+
 (deftype GroupValidator [validators]
   Validator
   (-validate [this x]
-    (loop [s (success-value x)
-           errors empty-error-result
-           validators validators]
-      (if (empty? validators)
-        (if (empty? (:value errors))
-          s
-          errors)
-        (let [r (-validate (first validators) (result-value s))]
-          (if (success? r)
-            (recur r errors (rest validators))
-            (recur s (mappend errors r) (rest validators)))))))
+    (let [initial {:last-success (success-value x)
+                   :result       (success-value x)}]
+      (:result (reduce accumulate-validations initial validators))))
   (possible-errors [this]
     (combine-errors (map possible-errors validators))))
 
