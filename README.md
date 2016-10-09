@@ -1,23 +1,29 @@
-# clens
+# Detox
 
-Yet another validation library... but this one associates validations with lens traversals (a la Traversy (github.com/ctford/traversy) )
 
-## FAQ
 
-### Why is this one any better than the other ones?
+### OK, OK, how do I use it?
 
-Maybe it's not, but I thought the idea of applying a validation to a lens, which potential has multiple foci, would be quite neat.  Also I want the output of the validation to be simpler, so it's easier for the user to make decisions about how to render the messages.  The approach of returning errors in the same structure as the model actually makes things more fiddly and less flexible (IMHO).
+### How do I make my own validators?
 
-### Can you show me an example of how to use it?
+### I just want to lay out my validations in a map like the other clojure libraries - how do I do that?
+ // explain why this isn't great - coupling to data strucure shape
 
-Not yet.
+### What do I do if I have validations that dependent on multiple other validations?
 
-### How can I wire in messages for my errors?
+### Right, I got some errors out, how do I translate them into error messages?
 
-I'll tell you when I've written it up.  I'll try and do that soon.
+### I keep forgetting to add translations for errors when I update my validator...
+
+### Can I parse values when I'm validating stuff?
+
+### Ok, I've got one for you, I want to run a single validator in multiple places in my data, can I do that?
+
+
+
 
 ## License
 
-Copyright © 2014 John Cowie
+Copyright © 2016 John Cowie
 
 Distributed under the Eclipse Public License, the same as Clojure.
