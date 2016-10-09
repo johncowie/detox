@@ -44,20 +44,42 @@
       (is= (c/validate "str" validator) (u/single-error-result [:is-integer] "str"))
       (is= (c/validate 1 validator) (u/single-error-result [:is-string] 1)))))
 
-(def validator (c/from-map {:name v/is-string
-                            :xs   {:a v/is-integer :b v/is-integer}}))
+(deftest each-is-test
+  (testing "can apply a validator to a collection"
+    (let [validator (c/each-is v/is-integer)]
+      (is= (c/validate [] validator) (u/success-result []))
+      (is= (c/validate [1] validator) (u/success-result [1]))
+      (is= (c/validate ["1" "2"] validator) (u/success-result [1 2]))
+      (is= (c/validate ["1" "a" "2" "b"] validator) (u/error-result (u/single-error [:is-integer] "a")
+                                                                    (u/single-error [:is-integer] "b"))))))
 
 (deftest from-map-test
   ;; FIXME what to do if selector is called on part of data structure that is not a map
   ;;  catch selector exception and rethrow
-  (is=
-    (c/validate {:name "bob" :xs {:a 1 :b 2}} validator)
-    (u/success-result {:name "bob" :xs {:a 1 :b 2}}))
-  (is=
-    (c/validate {:name "bob" :xs {:a "a" :b "b"}} validator)
-    (u/error-result (u/single-error [:xs :a :is-integer] "a")
-                    (u/single-error [:xs :b :is-integer] "b")))
-  (is=
-    (c/validate {:name 1 :xs {:a 1 :b "b"}} validator)
-    (u/error-result (u/single-error [:name :is-string] 1)
-                    (u/single-error [:xs :b :is-integer] "b"))))
+  (testing "vanilla map validator"
+    (let [validator (c/from-map {:name v/is-string
+                                 :xs   {:a v/is-integer :b v/is-integer}})]
+      (is=
+        (c/validate {:name "bob" :xs {:a 1 :b 2}} validator)
+        (u/success-result {:name "bob" :xs {:a 1 :b 2}}))
+      (is=
+        (c/validate {:name "bob" :xs {:a "a" :b "b"}} validator)
+        (u/error-result (u/single-error [:xs :a :is-integer] "a")
+                        (u/single-error [:xs :b :is-integer] "b")))
+      (is=
+        (c/validate {:name 1 :xs {:a 1 :b "b"}} validator)
+        (u/error-result (u/single-error [:name :is-string] 1)
+                        (u/single-error [:xs :b :is-integer] "b")))))
+  (testing "validating a collection"
+    (let [validator (c/from-map {:col [v/is-integer]})]
+      (is=
+        (c/validate {:col []} validator)
+        (u/success-result {:col []}))
+      (is=
+        (c/validate {:col ["1"]} validator)
+        (u/success-result {:col [1]}))
+      (is=
+        (c/validate {:col ["1" "blah" "blob"]} validator)
+        (u/error-result (u/single-error [:col :is-integer] "blah")
+                        (u/single-error [:col :is-integer] "blob")))))
+  )

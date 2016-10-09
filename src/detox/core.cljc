@@ -170,9 +170,24 @@
 (defn validator? [x]
   (satisfies? Validator x))
 
+(deftype CollectionValidator [validator]
+  Validator
+  (-validate [this x]                                       ;; TODO check that x is a collection
+    (let [rs (map (partial -validate validator) x)
+          vs (map result-value rs)]
+      (if (every? success? rs)
+        (success-value vs)
+        (error-value (apply concat (map result-value (remove success? rs)))))))
+  (possible-errors [this]
+    (possible-errors validator)))
+
+(defn each-is [validator]
+  (CollectionValidator. validator))
+
 (defn from-map
   ([m]
    (cond
      (validator? m) m
+     (sequential? m) (each-is (from-map (first m)))         ;; TODO verify that only one validator in list
      :else (apply group (map (fn [[k v]] (at (from-map v) k [k])) m)))))
 

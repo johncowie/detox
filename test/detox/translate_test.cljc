@@ -32,7 +32,7 @@
           {:age  {:less-than "Person is 20, not under 15"
                   :mandatory "Person must have an age"}
            :name {:first-name {:equal-to "Person's first name must be Joe, but was Derek"}}})))
-    #_(future-fact "can translate error that has multiple values in list")
+    #_(future-fact "can translate error that has multiple values in list") ;; FIXME do this soon
     ))
 
 (deftest check-translations-test

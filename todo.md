@@ -3,9 +3,9 @@
 ### TODO
  - improve error and success result return types - errors should be presented as map of key to error details
    - {:valid true :result {}}  {:valid false :result {:k []}}
- - implement translation
+ X implement translation
  X consolidate ```at``` and ```at*```
- - target both clj and cljs - run tests in both environments
+ X target both clj and cljs - run tests in both environments
  - convert tests to clojure.test
     - write macros to preserve midje syntax
     - use plugin to replace midje autotest
@@ -14,6 +14,7 @@
  - if using a nested-selector with multi-selectors, verify that each selector only returns a single value
  X roll detox.model back into detox.core
  - write test that demos that parsing can be done with multi-nested validator
+ - if validator multiple values, perhaps someway of indexing them in error path?
 
 ### QUESTIONS
  - For errors, should unparsed or transformed values be preserved in error value?
