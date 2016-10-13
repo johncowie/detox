@@ -15,12 +15,13 @@ Add the following to your project dependencies:
 Let's validate that a value exists.  
 
 ```clojure
-  (require
+  (:require
     [detox.core :as c]
     [detox.validators :as v])
 
   (c/validate 1 v/mandatory)
   ;; => {:result :success :value 1}
+
   (c/validate nil v/mandatory)
   ;; => {:result :error
   ;;     :value [{:type [:mandatory] :value nil :constraints {}}]}
@@ -99,7 +100,7 @@ data structures with increasingly complex rules.
 <!-- ### Can I parse values when I'm validating stuff? -->
 <!-- ### Ok, I've got one for you, I want to run a single validator in multiple places in my data, can I do that? -->
 <!-- ### I just want to lay out my validations in a map like the other clojure libraries - how do I do that? -->
- <!-- // explain why this isn't great - coupling to data strucure shape -->
+<!-- explain why this isn't great - coupling to data structure shape -->
 ## License
 
 Copyright © 2016 John Cowie
