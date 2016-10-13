@@ -25,11 +25,9 @@
   ([type value] (core-error type value {})))
 
 (def empty-error-result
-  ;(error-value {})
   (error-value []))
 
 (defn single-error-result [type value constraints]
-  ;(error-value (assoc-in {} type [{:value value :constraints constraints}]))
   (error-value [{:type type :value value :constraints constraints}]))
 
 (defn prefix-error [id error]
@@ -83,23 +81,18 @@
     (-> (possible-errors validator)
         (prefix-errors id))))
 
-(defn run-chain [value validators]
-  (if (empty? validators)
-    (success-value value)
-    (let [[v1 & vr] validators]
-      (let [r (-validate v1 value)]
-        (if (success? r)
-          (run-chain (result-value r) vr)
-          r)))))
+(defn bind [m validator]
+  (if (or (error-value? m) (short-circuit? m))
+    m
+    (-validate validator (result-value m))))
 
 (deftype ChainValidator [validators]
   Validator
   (-validate [this x]
-    (let [r (run-chain x validators)]
+    (let [r (reduce bind (success-value x) validators)]
       (if (short-circuit? r) (success-value (result-value r)) r)))
   (possible-errors [this]
     (combine-errors (map possible-errors validators))))
-
 
 (defn- accumulate-validations [{:keys [last-success result]} validator]
   (let [r (-validate validator (result-value last-success))
