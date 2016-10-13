@@ -93,7 +93,43 @@ a name exists, and that the age is greater than 3.
 Using `chain`, `at`, and `group` you can compose your validators to validate increasingly large
 data structures with increasingly complex rules.
 
-<!-- ### How do I make my own validators? -->
+### How do I make my own validators?
+
+You can make a validator using the `base-validator` function.
+The arguments are:
+ - an identifier for the validation
+ - a function that takes a value and returns a success result or error result
+ - a map of parameterised constraints used in the validation.
+
+For example, the greater-than validator could be defined as follows:
+
+```clojure
+  (defn greater-than [limit]
+    (c/base-validator
+      :greater-than
+      (fn [v] (if (> v limit) (c/success-value v) (c/error-value v)))
+      {:limit limit}))
+```
+
+The constraints map is not used during validation, but will be returned with the errors. This can be used for understanding the context in which the validation failed (particularly useful for producing helpful error messages).
+
+If that definition looks a bit verbose then are a couple of handy macros for writing the same thing. The above is equivalent to:
+
+```clojure
+  (require
+    [detox.macros :refer [defvalidator defpredicate]])
+
+  (defvalidator greater-than [v limit] (if (> v limit) (c/success-value v) (c/error-value v)))
+```
+
+which is also equivalent to:
+
+```clojure
+  (defpredicate greater-than [v limit] (> v limit))
+```
+
+Note: If you only pass one argument to the macro, a validator will be returned instead of a function that takes arguments and returns a validator.
+
 <!-- ### Right, I got some errors out, how do I translate them into error messages? -->
 <!-- ### I keep forgetting to add translations for errors when I update my validator... -->
 <!-- ### What do I do if I have validations that are dependent on multiple other validations? -->
