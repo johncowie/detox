@@ -23,6 +23,7 @@
  - can there be more than one error with the same key?
  - should identifier (e.g. [:address :line-1]) be separated from base failure (e.g. [:greater-than])?
  - do I need to add in dependencies?
+ - What happens if translate is called on success result?
 
 ### ISSUES
  - if the structure of the thing to be validated is wrong, then the nested validators can blow up

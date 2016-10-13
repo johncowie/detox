@@ -1,7 +1,7 @@
 # Detox
 
 Detox is my attempt at a validation library, to scratch a particular itch that I have.  The approach taken is a little
-taken to most of the existing Clojure validation libraries, with a strong emphasis on composing new validators out of smaller validators.  I was also interested in creating a validation library that allowed some decoupling from the validation rules and the structure of the data.
+different to most of the existing Clojure validation libraries, with a strong emphasis on composing new validators out of smaller validators.  I was also interested in creating a validation library that allowed some decoupling from the validation rules and the structure of the data.
 
 ### How do I get it?
 
@@ -27,7 +27,7 @@ Let's validate that a value exists.
   ;;     :value [{:type [:mandatory] :value nil :constraints {}}]}
 
 ```
-`mandatory` is a value validator.  We can make more complex validators by composing these value validators together.
+`mandatory` is a 'value validator'.  We can make more complex validators by composing these value validators together.
 
 Let's say that we want to validate that a value exists, and then check that it is greater than 3. We can `chain` these validators, so that an error will be returned for the first validator that fails:
 
@@ -155,10 +155,36 @@ Yes, you can! Let's say that you want to parse an integer from a string, you sim
 
   (c/validate {:a {:b "6"}} (c/at parse-integer :a-b [:a :b]))
   ;; => {:result :success :value {:a {:b 6}}}
-  
+
 ```
 
-<!-- ### Right, I got some errors out, how do I translate them into error messages? -->
+### Right, I got some errors out, can I translate them into error messages?
+
+Yeah as it happens there's some stuff provided for that.  It works out-of-the-box by providing a nested map with template strings.  Words surrounded with ~~ represent keys in the constraints map. ~value~ will template in the value that the validator attempted to validate.
+
+```clojure
+  (:require
+    [detox.translate :as t])
+
+  (def translations {
+    :name-check {
+      :mandatory "You need to specify a name."
+    }
+    :age-check {
+      :mandatory "You need to specify an age."
+      :greater-than "Age needs to be greater than ~~limit~~, was ~value~."
+    }
+  })
+
+  (def validator
+    (c/group
+      (c/at v/mandatory :name-check [:name])
+      (c/at (c/chain v/mandatory (v/greater-than 18)) :age-check [:age])))
+
+  (-> {:name nil :age 7} (c/validate validator) (t/translate translations))
+  ;; => {:name-check {:mandatory "You need to specify a name."}
+  ;;     :age-check {:greater-than "Age needs to be greater than 18, was 7."}}
+```
 
 <!-- ### I keep forgetting to add translations for errors when I update my validator... -->
 
