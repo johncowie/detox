@@ -101,7 +101,7 @@ The arguments are:
  - a function that takes a value and returns a success result or error result
  - a map of parameterised constraints used in the validation.
 
-For example, the greater-than validator could be defined as follows:
+For example, the `greater-than` validator could be defined as follows:
 
 ```clojure
   (defn greater-than [limit]
@@ -116,7 +116,7 @@ The constraints map is not used during validation, but will be returned with the
 If that definition looks a bit verbose then are a couple of handy macros for writing the same thing. The above is equivalent to:
 
 ```clojure
-  (require
+  (:require
     [detox.macros :refer [defvalidator defpredicate]])
 
   (defvalidator greater-than [v limit] (if (> v limit) (c/success-value v) (c/error-value v)))
@@ -130,11 +130,42 @@ which is also equivalent to:
 
 Note: If you only pass one argument to the macro, a validator will be returned instead of a function that takes arguments and returns a validator.
 
+### Can I update values when I'm validating stuff?
+
+Yes, you can! Let's say that you want to parse an integer from a string, you simply need to return the parsed value in the success return type.  These updates will be made available to subsequent validations, and propagated back up your data structures.  For example:
+
+```clojure
+  (defvalidator parse-integer [s]
+    (try
+      (c/success-value (Integer. s))
+      (catch Exception e
+        (c/error-value s))))
+
+  (c/validate "3" parse-integer)
+  ;; => {:result :success :value 3}
+
+  (c/validate "blah" parse-integer)
+  ;; => {:result :error :value [{:type [:parse-integer] :value "blah" :constraints {}}]}
+
+  (c/validate "6" (c/chain mandatory parse-integer (greater-than 5)))
+  ;; => {:result :success :value 6}
+
+  (c/validate "4" (c/chain mandatory parse-integer (greater-than 5)))
+  ;; => {:result :error :value [{:type [:greater-than] :value 4 :constraints {}}]}
+
+  (c/validate {:a {:b "6"}} (c/at parse-integer :a-b [:a :b]))
+  ;; => {:result :success :value {:a {:b 6}}}
+  
+```
+
 <!-- ### Right, I got some errors out, how do I translate them into error messages? -->
+
 <!-- ### I keep forgetting to add translations for errors when I update my validator... -->
+
 <!-- ### What do I do if I have validations that are dependent on multiple other validations? -->
-<!-- ### Can I parse values when I'm validating stuff? -->
+
 <!-- ### Ok, I've got one for you, I want to run a single validator in multiple places in my data, can I do that? -->
+
 <!-- ### I just want to lay out my validations in a map like the other clojure libraries - how do I do that? -->
 <!-- explain why this isn't great - coupling to data structure shape -->
 ## License
