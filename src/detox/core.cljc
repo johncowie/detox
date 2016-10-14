@@ -66,12 +66,14 @@
   Validator
   (-validate [this x]
     (if (= (count selectors) 1)
-      (let [selector (first selectors)
-            v-with-validation (update-vals selection x selector #(-validate validator %))
-            r (select-vals selection v-with-validation selector)]
-        (if (every? success? r)                             ;; need some sort of fmap affair here
-          (success-value (update-vals selection v-with-validation selector result-value))
-          (prefix-errors (combine-errors r) id)))
+      (let [error-state (atom [])
+            update-fn (fn [v] (let [r (-validate validator v)]
+                                (swap! error-state conj r)
+                                (result-value r)))
+            updated (update-vals selection x (first selectors) update-fn)]
+        (if (every? success? @error-state)                             ;; need some sort of fmap affair here
+          (success-value updated)
+          (prefix-errors (combine-errors @error-state) id)))
       (let [vals (map (comp first #(select-vals selection x %)) selectors)
             r (-validate validator vals)]
         (if (success? r)

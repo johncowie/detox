@@ -193,6 +193,8 @@ Yeah as it happens there's some stuff provided for that.  It works out-of-the-bo
 <!-- ### Ok, I've got one for you, I want to run a single validator in multiple places in my data, can I do that? -->
 
 <!-- ### I just want to lay out my validations in a map like the other clojure libraries - how do I do that? -->
+
+<!-- ### Can I use this with ClojureScript?  -->
 <!-- explain why this isn't great - coupling to data structure shape -->
 ## License
 

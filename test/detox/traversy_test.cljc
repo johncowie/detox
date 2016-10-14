@@ -18,3 +18,11 @@
          (is=
            (c/validate {:a 1} validator)
            (u/success-result {:a 1}))))
+
+(deftest lens-law-violation-test
+  (testing "that updates still work if the update causes a lens to no longer be applicable"
+    (let [to-str (c/base-validator :inc-one (fn [v] (c/success-value (str v))) {})
+          validator (-> to-str (t/at :odd (l/only odd?)))]
+      (is=
+        (c/validate [1 2 3 4] validator)
+        (u/success-result ["1" 2 "3" 4])))))

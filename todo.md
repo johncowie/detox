@@ -24,6 +24,7 @@
  - should identifier (e.g. [:address :line-1]) be separated from base failure (e.g. [:greater-than])?
  - do I need to add in dependencies?
  - What happens if translate is called on success result?
+ - What happens for lens law violation? I.e. I run an update, then a get (i.e. the modification changes the results of the selector)
 
 ### ISSUES
  - if the structure of the thing to be validated is wrong, then the nested validators can blow up
