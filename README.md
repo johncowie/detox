@@ -1,5 +1,7 @@
 # Detox
 
+![Travis status](https://travis-ci.org/johncowie/detox.svg?branch=master)
+
 Detox is my attempt at a validation library, to scratch a particular itch that I have.  The approach taken is a little
 different to most of the existing Clojure validation libraries, with a strong emphasis on composing new validators out of smaller validators.  I was also interested in creating a validation library that allowed some decoupling from the validation rules and the structure of the data.
 
