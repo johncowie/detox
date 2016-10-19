@@ -1,4 +1,9 @@
-(ns detox.test-utils)
+(ns detox.test-utils
+  (:require
+    #?(:clj [clojure.test :refer [is]]
+       :cljs [cljs.test :refer-macros [is]])))
+
+(defn is= [a b] (is (= a b)))
 
 (defn single-error
   ([id value constraints]
@@ -18,6 +23,12 @@
 
 (defn success-result [value]
   {:result :success :value value})
+
+(defn short-circuit-result [value]
+  {:result :break :value value})
+
+(defmacro future-testing [string & body]
+  `(println "FUTURE_TEST: " ~string))
 
 ;; midje like syntax
 ;

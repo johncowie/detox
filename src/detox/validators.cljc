@@ -6,7 +6,7 @@
 
 ;; mandatory
 (declare mandatory optional greater-than less-than
-         is-integer is-string length length-greater-than length-less-than a>b)
+         coerce-integer is-string length length-greater-than length-less-than a>b matches-regex)
 
 (defpredicate mandatory [v] (not (nil? v)))
 
@@ -22,7 +22,7 @@
               (< v limit))
 
 ;; TODO generalise parsing so it's easier to make more of them
-(defvalidator is-integer [v]
+(defvalidator coerce-integer [v]
               (if (integer? v)
                 (success-value v)
                 (try (success-value (parse-int v))
@@ -43,3 +43,5 @@
 (def length-less-than (comp length less-than))
 
 (defpredicate a>b [[a b]] (> a b))
+
+(defpredicate matches-regex [v regex] (re-matches (re-pattern regex) v))

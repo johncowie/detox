@@ -164,50 +164,50 @@
           (u/single-error-result [:greater-than] "...value..." {:limit 3})))))
   (testing "adding parsers to the mix"
     (is=
-      (c/validate nil v/is-integer)
-      (u/single-error-result [:is-integer] nil))
+      (c/validate nil v/coerce-integer)
+      (u/single-error-result [:coerce-integer] nil))
     (is=
-      (c/validate 1 v/is-integer)
+      (c/validate 1 v/coerce-integer)
       (u/success-result 1))
     (is=
-      (c/validate 1.1 v/is-integer)
-      (u/single-error-result [:is-integer] 1.1))
+      (c/validate 1.1 v/coerce-integer)
+      (u/single-error-result [:coerce-integer] 1.1))
     (is=
-      (c/validate "2" v/is-integer)
+      (c/validate "2" v/coerce-integer)
       (u/success-result 2))
     (is=
-      (c/validate "2.3" v/is-integer)
-      (u/single-error-result [:is-integer] "2.3"))
+      (c/validate "2.3" v/coerce-integer)
+      (u/single-error-result [:coerce-integer] "2.3"))
     (testing "parsed values are passed through in chain"
       (is=
-        (c/validate "3" (c/chain v/is-integer (v/greater-than 3)))
+        (c/validate "3" (c/chain v/coerce-integer (v/greater-than 3)))
         (u/single-error-result [:greater-than] 3 {:limit 3})) ;; TODO should this be the initial value?
-      (is= (c/validate "4" (c/chain v/is-integer (v/greater-than 3)))
+      (is= (c/validate "4" (c/chain v/coerce-integer (v/greater-than 3)))
            (u/success-result 4)))
     (testing "parsed values are passed up nested validation"
       (is=
-        (c/validate {:age "3"} (c/at v/is-integer :age [:age]))
+        (c/validate {:age "3"} (c/at v/coerce-integer :age [:age]))
         (u/success-result {:age 3})))
     (testing "parsed values are passed up with parallel structure"
-      (let [validator (c/group (c/at (c/chain v/is-integer (v/greater-than 4)) :age [:age])
-                               (c/at (c/chain v/is-integer (v/greater-than 3)) :favNumber [:favNumber]))]
+      (let [validator (c/group (c/at (c/chain v/coerce-integer (v/greater-than 4)) :age [:age])
+                               (c/at (c/chain v/coerce-integer (v/greater-than 3)) :favNumber [:favNumber]))]
         (is=
           (c/validate {:age "10" :favNumber "6"} validator)
           (u/success-result {:age 10 :favNumber 6})))))
   (testing "can break out of chain if optional value is specified"
-    (let [optional-integer (c/chain v/optional v/is-integer)]
+    (let [optional-integer (c/chain v/optional v/coerce-integer)]
       (is=
         (c/validate nil optional-integer)
-        (u/success-result nil))
+        (u/short-circuit-result nil))
       (is=
         (c/validate 1.1 optional-integer)
-        (u/single-error-result [:is-integer] 1.1))
+        (u/single-error-result [:coerce-integer] 1.1))
       (is=
         (c/validate "3" optional-integer)
         (u/success-result 3))))
   (testing "supports selectors that point to multiple foci - e.g. with traversy"
     (let [->each-val (l/*> (l/in [:vals]) l/each)
-          validator (t/at (c/chain v/is-integer (v/less-than 5)) :vals ->each-val)]
+          validator (t/at (c/chain v/coerce-integer (v/less-than 5)) :vals ->each-val)]
       (is=
         (c/validate {:vals [1 "2" 3 "4"]} validator)
         (u/success-result {:vals [1 2 3 4]}))
