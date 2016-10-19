@@ -91,13 +91,11 @@
           (short-circuit-value updated)
           :else (prefix-errors (combine-errors @error-state) id))))
 
-;; TODO what does optional mean for multi selectors?
 (defn apply-multiple-selectors [x validator id selectors selection optional?]
   (let [valcs (map #(select-vals selection x %) selectors)
         vals (map first valcs)
         all-present (= (count (remove empty? valcs)) (count selectors))
         ]                                                   ;; TODO Verify that selector only returns one value
-
     (cond (and optional? (not all-present))
           (success-value x)
           (not all-present)
@@ -112,7 +110,7 @@
   Validator
   (-validate [this x]
     (case (count selectors)
-      0 (throw (Exception. "Not enough selectors!!"))       ;; TODO write test for this
+      0 (throw-error "Not enough selectors!!")
       1 (apply-single-selector x validator id (first selectors) selection optional?)
       (apply-multiple-selectors x validator id selectors selection optional?)))
   (possible-errors [this]

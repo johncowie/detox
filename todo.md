@@ -1,7 +1,7 @@
 ;; ROAD MAP
 
 ### TODO
- - add build to travis
+ X add build to travis
  X improve error and success result return types - errors should be presented as map of key to error details
    - {:valid true :result {}}  {:valid false :result {:k []}}
  X implement translation

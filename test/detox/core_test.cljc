@@ -95,6 +95,8 @@
       (u/single-error-result [:blah :greater-than] 8 {:limit 5}))))
 
 (deftest at-test
+  (testing "throws error if no selectors are provided"
+    (is (thrown? #?(:clj Exception :cljs js/Error) (c/validate {:age 1} (c/at v/coerce-integer :age)))))
   (testing "can validate value in map"
     (let [validator (c/at v/coerce-integer :age [:age])]
       (are [input output]
