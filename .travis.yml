@@ -1,6 +1,6 @@
 sudo: false
 language: clojure
-lein: lein2
-script: lein2 test-all
+lein: 2.6.1
+script: lein test-all
 jdk:
   - openjdk7
