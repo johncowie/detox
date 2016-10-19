@@ -19,3 +19,4 @@
                                                     :main          detox.test-runner
                                                     :optimizations :whitespace}}}
               :test-commands {"unit-tests" ["phantomjs" "target/cljs/testable.js"]}})
+
